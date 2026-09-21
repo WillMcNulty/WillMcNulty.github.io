@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>William McNulty</title>
+<meta name="description" content="William McNulty: Computer Science and Economics at the University of Virginia. Software, data pipelines, and workflow tools that are tested against evidence.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <strong>William McNulty</strong>
+      <nav aria-label="Sections">
+        <a href="#projects">Projects</a>
+        <a href="#background">Background</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero band" aria-labelledby="top">
+    <div class="wrap">
+      <h1 id="top">I build AI-enabled tools and <span class="hl">check that they work.</span></h1>
+      <p>I study Computer Science and Economics at the University of Virginia. My projects are software, data pipelines and workflow tools, and each one is measured against evidence before I trust it.</p>
+      <p>Currently: a teaching assistant for CS 3140 (Software Development Essentials), an Associate Consultant evaluating emerging AI technologies, and looking for a summer 2027 internship.</p>
+      <div class="links">
+        <a class="btn primary" href="demo/tracker/">Try the live tracker demo</a>
+        <a class="btn" href="#projects">See the projects</a>
+        <a class="btn" href="https://www.linkedin.com/in/williammcnultyglc/">LinkedIn</a>
+        <a class="btn" href="https://github.com/WillMcNulty">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="evidence" role="list" aria-label="By the numbers">
+    <div class="wrap">
+      <div role="listitem"><b>700+</b><span>course documents converted into searchable notes</span></div>
+      <div role="listitem"><b>100%</b><span>page-type accuracy on a hand-checked set</span></div>
+      <div role="listitem"><b>~200</b><span>students I teach and review code for as a TA</span></div>
+      <div role="listitem"><b>3.6</b><span>GPA, Computer Science and Economics</span></div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h">Projects</h2>
+
+      <article class="project">
+        <div class="meta">2026 to present · in progress</div>
+        <h3>UVA Knowledge Network</h3>
+        <p>A private, locally hosted pipeline that turns coursework (PDFs, slides, spreadsheets, class recordings) into structured, searchable notes, using local models so course material never leaves my machine.</p>
+        <div class="tags"><span>Python</span><span>Local vision-language models</span><span>OCR</span><span>BM25 search</span><span>Evaluation sets</span></div>
+        <details>
+          <summary>Read the brief</summary>
+          <div class="body">
+            <div><h4>The problem</h4><p>Ten courses of material sat in scattered formats, so finding how one idea connected across classes meant re-reading everything.</p></div>
+            <div><h4>What I built</h4>
+              <ul>
+                <li>Converters for PDFs, slide decks, spreadsheets and video transcripts into markdown with metadata (700+ documents across 10 courses).</li>
+                <li>An image workflow where a local vision-language model classifies each page as a graph, diagram, table or text and describes the figures.</li>
+                <li>Automated experiment loops that benchmark model, prompt and image-size variants against a hand-checked set and adopt a change only when it wins.</li>
+                <li>A keyword search prototype over 7,000+ text chunks, the foundation for question answering across courses.</li>
+              </ul>
+            </div>
+            <div><h4>How I tested it</h4>
+              <p>I labelled a 19-page set by hand and scored every variant against it. Page-type accuracy rose from 71% to 100% once the prompt asked for the page type on its own line. The table shows the leaderboard from one report.</p>
+              <div class="chart-wrap">
+                <table class="chart">
+                  <thead><tr><th scope="col">Variant</th><th scope="col">Quality score</th><th scope="col">Relative to 0.80 to 1.00</th></tr></thead>
+                  <tbody>
+                    <tr class="adopted"><td>4B model, integrated GPU (adopted)</td><td class="n">0.947</td><td><div class="track"><div class="fill" style="width:73.5%"></div></div></td></tr>
+                    <tr><td>9B model</td><td class="n">0.952</td><td><div class="track"><div class="fill" style="width:76%"></div></div></td></tr>
+                    <tr><td>9B model, integrated GPU</td><td class="n">0.944</td><td><div class="track"><div class="fill" style="width:72%"></div></div></td></tr>
+                    <tr><td>4B model, prompt v4 (baseline)</td><td class="n">0.932</td><td><div class="track"><div class="fill" style="width:66%"></div></div></td></tr>
+                    <tr><td>Prompt v6 (handwriting line)</td><td class="n">0.929</td><td><div class="track"><div class="fill" style="width:64.5%"></div></div></td></tr>
+                    <tr><td>Prompt v5 (adds text-page type)</td><td class="n">0.883</td><td><div class="track"><div class="fill" style="width:41.5%"></div></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note">Bars are drawn from 0.80 to 1.00 so the differences are visible. Prompt v5 looked reasonable but lowered the score because it broke slides that mix figures and text, so I did not adopt it.</p>
+            </div>
+            <div><h4>What I learned</h4><p>Several apparent model failures were really bugs in my own scoring code. I now read the raw outputs before I trust a metric.</p></div>
+            <p class="note">The code and data are private because they contain coursework. Next up: retrieval agents that answer questions across courses.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="project">
+        <div class="meta">September 2026 to present</div>
+        <h3>Job-Application Tracker</h3>
+        <p>A local dashboard that tracks every application through defined statuses with deadlines, a follow-up queue and drafted follow-up emails. The demo runs entirely in your browser on made-up sample data.</p>
+        <div class="tags"><span>Python standard library</span><span>JavaScript</span><span>Unit tests</span><span>Version-controlled data</span></div>
+        <div><a class="btn primary" href="demo/tracker/">Open the live demo</a></div>
+        <details>
+          <summary>Read the brief</summary>
+          <div class="body">
+            <div><h4>The problem</h4><p>I was managing more than 50 applications, each with its own deadline, requirements and follow-up date. Notes in scattered documents were not going to hold.</p></div>
+            <div><h4>What I built</h4>
+              <ul>
+                <li>A Python API and a single-page front end that saves every change to a JSON file I can review in git.</li>
+                <li>Forms that reject invalid dates, scores and statuses.</li>
+                <li>Views for what needs attention now: submissions to confirm, follow-ups due and upcoming deadlines.</li>
+                <li>Controls against cross-site and DNS-rebinding requests: loopback-only binding, Host checks and JSON-only writes.</li>
+              </ul>
+            </div>
+            <div><h4>How I tested it</h4><p>Automated unit tests cover validation, saving and the request checks. I built it with AI coding assistants and reviewed their work through the tests, which caught a date-validation bug that would have dropped connections.</p></div>
+            <p class="note">The real tracker holds personal application data, so its repository is private. This demo uses invented companies.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="project">
+        <div class="meta">June 2026 to present</div>
+        <h3>Fraternity Operations Platform</h3>
+        <p>One chat platform and membership database that replaced communication scattered across three apps, with workflows for reporting and approvals.</p>
+        <div class="tags"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>Docker</span></div>
+        <details>
+          <summary>Read the brief</summary>
+          <div class="body">
+            <div><h4>The problem</h4><p>Announcements were missed and there was no single, reliable record of members, because everything lived in Flare, Snapchat and GroupMe.</p></div>
+            <div><h4>What I did</h4><p>I gathered requirements from members, built the platform and released it in small steps. Members raised concerns about cost, time to adopt and design, and I addressed them by prioritizing their feedback.</p></div>
+            <div><h4>The result</h4><p>Other brothers now contribute to the project, it supports alumni connections, and the membership database is being extended to help manage house access.</p></div>
+            <p class="note">The platform holds member data, so it is private and there are no screenshots here.</p>
+          </div>
+        </details>
+      </article>
+    </section>
+
+    <section id="background" aria-labelledby="bg-h">
+      <h2 id="bg-h">Background</h2>
+      <div class="facts">
+        <div><h3>University of Virginia</h3><p>B.A. Computer Science and B.A. Economics, expected May 2028. Industrial Organization concentration, Real Estate minor. Dean's List, Spring and Fall 2025.</p></div>
+        <div><h3>Teaching assistant</h3><p>CS 3140, Software Development Essentials, since August 2026: design and programming reviews and teaching for about 200 students.</p></div>
+        <div><h3>Associate Consultant</h3><p>Aegis Cyber Solutions, since March 2023: comparative analyses of emerging AI technologies, turned into executive-facing recommendations.</p></div>
+        <div><h3>Undergraduate researcher</h3><p>Quantitative research with UVA faculty and World Bank researchers, supporting evidence-based policy analysis.</p></div>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <p>Email me at <a href="mailto:willmcnultycontact@gmail.com">willmcnultycontact@gmail.com</a>, or find me on <a href="https://www.linkedin.com/in/williammcnultyglc/">LinkedIn</a> and <a href="https://github.com/WillMcNulty">GitHub</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Plain HTML and CSS, no trackers. Last updated September 2026.</div>
+  </footer>
+</body>
+</html>

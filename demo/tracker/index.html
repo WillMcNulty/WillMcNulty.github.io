@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jobstracker demo</title>
+<style>
+:root {
+  --ground: #f5f6f3;
+  --panel: #ffffff;
+  --ink: #1b2421;
+  --muted: #5d6a65;
+  --line: #d9dfda;
+  --line-strong: #b9c3bd;
+  --navy: #232d4b;
+  --accent: #e57200;
+  --accent-ink: #141b33;
+  --good: #1f7a4d;
+  --warn: #9a6408;
+  --crit: #b3372f;
+  --s-materials: #6b7a99;
+  --s-applied: #232d4b;
+  --s-followup: #e57200;
+  --s-screening: #1a7f86;
+  --s-interview: #0f5f66;
+  --s-offer: #1f7a4d;
+  --s-rejected: #b3372f;
+  --s-withdrawn: #8a938f;
+  --s-unknown: #b7791f;
+  --shadow: 0 12px 40px rgba(20, 30, 27, 0.18);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #11151d; --panel: #181e29; --ink: #e7eaf0; --muted: #98a3b5;
+    --line: #2a3242; --line-strong: #3b4459; --navy: #9db0e8; --accent: #f28c28;
+    --accent-ink: #1a1206; --good: #4cc38a; --warn: #e0a83a; --crit: #ef7b72;
+    --s-materials: #8a9ac0; --s-applied: #9db0e8; --s-followup: #f28c28; --s-screening: #4dc3cb;
+    --s-interview: #35b0b8; --s-offer: #4cc38a; --s-rejected: #ef7b72; --s-withdrawn: #7d8794;
+    --s-unknown: #e0a83a; --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #11151d; --panel: #181e29; --ink: #e7eaf0; --muted: #98a3b5;
+  --line: #2a3242; --line-strong: #3b4459; --navy: #9db0e8; --accent: #f28c28;
+  --accent-ink: #1a1206; --good: #4cc38a; --warn: #e0a83a; --crit: #ef7b72;
+  --s-materials: #8a9ac0; --s-applied: #9db0e8; --s-followup: #f28c28; --s-screening: #4dc3cb;
+  --s-interview: #35b0b8; --s-offer: #4cc38a; --s-rejected: #ef7b72; --s-withdrawn: #7d8794;
+  --s-unknown: #e0a83a; --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--ground); color: var(--ink); font: 14px/1.45 var(--sans);
+  padding-inline: 16px; padding-block: 20px 56px;
+}
+.wrap { max-width: 1240px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+
+/* header */
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+h1 { font: 600 28px/1.1 var(--serif); letter-spacing: -0.01em; margin: 0; }
+h1 small { font: 500 13px var(--sans); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; margin-left: 10px; }
+.head-actions { display: flex; gap: 8px; align-items: center; }
+.btn {
+  border: 1px solid var(--line-strong); background: var(--panel); border-radius: 6px;
+  padding: 7px 12px; cursor: pointer; font-weight: 600; font-size: 13px;
+}
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--line); }
+
+/* offline banner + toast */
+#banner { border: 1px solid var(--crit); color: var(--crit); background: var(--panel); border-radius: 6px; padding: 10px 14px; }
+#banner code { font-family: var(--mono); }
+#toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--ink); color: var(--ground); padding: 9px 16px; border-radius: 6px; font-weight: 600;
+  z-index: 50; max-width: calc(100% - 32px);
+}
+
+/* summary */
+.summary { display: grid; gap: 14px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; }
+.stat { padding: 12px 16px; border-right: 1px solid var(--line); }
+.stat:last-child { border-right: 0; }
+.stat b { display: block; font: 600 26px/1.1 var(--mono); }
+.stat span { color: var(--muted); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+.pipeline { display: flex; height: 14px; border-radius: 4px; overflow: hidden; gap: 2px; background: var(--ground); }
+.pipeline button { border: 0; padding: 0; cursor: pointer; min-width: 6px; }
+.pipeline button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.legend button { border: 0; background: none; padding: 2px 0; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.legend button[aria-pressed="true"] { color: var(--ink); font-weight: 700; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+/* attention */
+.attention { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.card h2 { margin: 0 0 8px; font: 700 12px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.card li button { width: 100%; text-align: left; border: 0; background: none; padding: 6px 0; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+.card li:last-child button { border-bottom: 0; }
+.card li button:hover .co { text-decoration: underline; }
+.card .co { font-weight: 600; }
+.card .why { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.card .more { margin-top: 6px; }
+.empty { color: var(--muted); padding: 6px 0; }
+.flag-crit { color: var(--crit); }
+.flag-warn { color: var(--warn); }
+
+/* toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toolbar input[type="search"], .toolbar select {
+  border: 1px solid var(--line-strong); background: var(--panel); border-radius: 6px; padding: 7px 10px;
+}
+.toolbar input[type="search"] { flex: 1 1 200px; min-width: 0; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line-strong); background: var(--panel); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 12.5px; }
+.chip[aria-pressed="true"] { background: var(--navy); color: var(--ground); border-color: var(--navy); }
+.count { margin-left: auto; color: var(--muted); font-size: 12.5px; }
+
+/* table */
+.table-scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 860px; }
+th { text-align: left; font: 700 11.5px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; }
+.cell-co b { display: block; }
+.cell-co span { color: var(--muted); font-size: 12.5px; }
+.family { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid currentColor;
+}
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.mat { display: inline-flex; gap: 4px; }
+.mat i { font: 700 10.5px var(--mono); font-style: normal; width: 18px; height: 18px; display: inline-grid; place-items: center; border-radius: 3px; border: 1px solid var(--line-strong); color: var(--muted); }
+.mat i.on { background: var(--navy); color: var(--ground); border-color: var(--navy); }
+.next { max-width: 280px; color: var(--muted); font-size: 12.5px; }
+
+/* drawer */
+#scrim { position: fixed; inset: 0; background: rgba(10, 14, 12, 0.45); z-index: 30; }
+#drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--panel);
+  z-index: 40; box-shadow: var(--shadow); overflow-y: auto; padding: 20px 20px 40px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+}
+#drawer h2 { font: 600 22px/1.2 var(--serif); margin: 0; }
+.d-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 4px; }
+.d-sub { color: var(--muted); margin-bottom: 14px; }
+.d-summary { margin: 0 0 14px; max-width: 65ch; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; }
+label.f { display: grid; gap: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+label.f input, label.f select, label.f textarea {
+  border: 1px solid var(--line-strong); background: var(--ground); border-radius: 6px; padding: 7px 9px;
+  font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); width: 100%;
+}
+label.f textarea { min-height: 90px; resize: vertical; }
+label.f.draft textarea { min-height: 210px; font-size: 13px; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.facts { margin: 0 0 14px; padding: 10px 12px; background: var(--ground); border-radius: 6px; display: grid; gap: 4px; font-size: 13px; }
+.facts .k { color: var(--muted); }
+.note-flag { margin: 0 0 14px; padding: 10px 12px; border: 1px solid var(--warn); border-radius: 6px; font-size: 13px; }
+.danger { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line); }
+.danger .btn { color: var(--crit); border-color: var(--crit); }
+
+dialog { border: 1px solid var(--line-strong); border-radius: 10px; background: var(--panel); color: var(--ink); padding: 20px; width: min(460px, calc(100% - 32px)); box-shadow: var(--shadow); }
+dialog::backdrop { background: rgba(10, 14, 12, 0.5); }
+dialog form { display: grid; gap: 12px; }
+dialog h2 { margin: 0; font: 600 20px var(--serif); }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 24px; }
+  .stat { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #drawer { animation: slide 0.18s ease-out; }
+  @keyframes slide { from { transform: translateX(24px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>jobstracker<small id="cycle"></small></h1>
+    <div class="head-actions">
+      <span class="muted" id="todayLabel"></span>
+      <button class="btn ghost" id="themeBtn" type="button" title="Switch light / dark">Theme</button>
+      <button class="btn primary" id="addBtn" type="button">Add application</button>
+    </div>
+  </header>
+
+  <div id="banner" hidden></div>
+
+  <section class="summary" aria-label="Pipeline summary">
+    <div class="stats" id="stats"></div>
+    <div class="pipeline" id="pipeline" role="group" aria-label="Applications by status"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="attention" aria-label="Needs attention" id="attention"></section>
+
+  <section aria-label="All applications">
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search company, role, location, notes" aria-label="Search applications">
+      <select id="family" aria-label="Filter by family"></select>
+      <select id="sort" aria-label="Sort applications">
+        <option value="score">Sort: best match</option>
+        <option value="age">Sort: oldest first</option>
+        <option value="deadline">Sort: nearest deadline</option>
+        <option value="company">Sort: company A-Z</option>
+      </select>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="chips" id="chips" style="margin: 10px 0 12px"></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Company</th><th>Family</th><th class="num">Fit</th><th class="num">App</th><th class="num">Match</th>
+          <th>Status</th><th class="num">Age</th><th>Docs</th><th>Next action</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="scrim" hidden></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-label="Application details" hidden></aside>
+
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <h2>Add application</h2>
+    <label class="f">Company<input id="a-company" required></label>
+    <label class="f">Role<input id="a-role"></label>
+    <label class="f">Family<select id="a-family"></select></label>
+    <label class="f">Location<input id="a-location"></label>
+    <label class="f">Date applied<input id="a-date" type="date"></label>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" type="button" id="addCancel">Cancel</button>
+      <button class="btn primary" value="ok" type="submit">Add</button>
+    </div>
+  </form>
+</dialog>
+<div id="toast" role="status" hidden></div>
+
+<script src="mock-api.js"></script>
+<script>
+"use strict";
+const STATUS = {
+  materials_ready: { label: "Materials ready", color: "--s-materials", order: 0 },
+  unknown:         { label: "Confirm status",  color: "--s-unknown",   order: 1 },
+  applied:         { label: "Applied",         color: "--s-applied",   order: 2 },
+  followup_sent:   { label: "Followed up",     color: "--s-followup",  order: 3 },
+  screening:       { label: "Screening",       color: "--s-screening", order: 4 },
+  interview:       { label: "Interview",       color: "--s-interview", order: 5 },
+  offer:           { label: "Offer",           color: "--s-offer",     order: 6 },
+  rejected:        { label: "Rejected",        color: "--s-rejected",  order: 7 },
+  withdrawn:       { label: "Withdrawn",       color: "--s-withdrawn", order: 8 },
+};
+const FAMILIES = ["Software & IT", "Product", "BD & Strategy", "Finance & Analytics", "Policy & Ops"];
+const FOLLOWUP_AFTER_DAYS = 14;   // cadence from the Fall 2026 tracker
+const STALE_AFTER_DAYS = 42;      // 6 weeks: treat as low probability
+
+const state = { apps: [], cycle: "", q: "", family: "", status: "", quick: "", sort: "score", open: null, offline: false };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- dates ---------- */
+const DAY = 86400000;
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const todayISO = () => iso(new Date());
+const parse = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const daysSince = (s) => (s ? Math.floor((parse(todayISO()) - parse(s)) / DAY) : null);
+const daysUntil = (s) => (s ? Math.round((parse(s) - parse(todayISO())) / DAY) : null);
+const fmtDate = (s) => (s ? parse(s).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "");
+
+/* ---------- derived ---------- */
+const match = (a) => {
+  const v = [a.fit, a.strength].filter((n) => typeof n === "number");
+  return v.length ? v.reduce((x, y) => x + y, 0) / v.length : null;
+};
+const isLive = (a) => !["rejected", "withdrawn", "offer"].includes(a.status);
+const age = (a) => daysSince(a.dateApplied);
+const followUpDue = (a) => ["applied"].includes(a.status) && !a.followUpSentOn && (age(a) ?? 0) >= FOLLOWUP_AFTER_DAYS;
+const needsConfirm = (a) => a.status === "materials_ready" || a.status === "unknown";
+const upcomingDeadline = (a) => isLive(a) && a.deadline && daysUntil(a.deadline) >= 0;
+const cmpScore = (a, b) => (match(b) ?? -1) - (match(a) ?? -1) || a.company.localeCompare(b.company);
+
+/* ---------- api ---------- */
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`);
+  return json;
+}
+async function load() {
+  try {
+    const data = await api("GET", "/api/applications");
+    state.apps = data.applications; state.cycle = data.cycle || ""; state.offline = false;
+  } catch (e) {
+    state.offline = true;
+  }
+  render();
+}
+let toastTimer;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+}
+async function patch(id, fields, { silent = false } = {}) {
+  const a = state.apps.find((x) => x.id === id); if (!a) return;
+  const before = { ...a };
+  Object.assign(a, fields);
+  try {
+    const saved = await api("PATCH", "/api/applications/" + encodeURIComponent(id), fields);
+    Object.assign(a, saved);
+    if (!silent) toast("Saved");
+  } catch (e) {
+    Object.assign(a, before); toast("Not saved: " + e.message);
+  }
+  render();
+}
+
+/* ---------- filtering ---------- */
+function visible() {
+  const q = state.q.trim().toLowerCase();
+  let list = state.apps.filter((a) => {
+    if (state.family && a.family !== state.family) return false;
+    if (state.status && a.status !== state.status) return false;
+    if (state.quick === "followup" && !followUpDue(a)) return false;
+    if (state.quick === "confirm" && !needsConfirm(a)) return false;
+    if (state.quick === "deadline" && !upcomingDeadline(a)) return false;
+    if (q && ![a.company, a.role, a.location, a.notes, a.nextAction, a.family].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const by = {
+    score: cmpScore,
+    age: (a, b) => (age(b) ?? -1) - (age(a) ?? -1) || cmpScore(a, b),
+    deadline: (a, b) => (a.deadline || "9999").localeCompare(b.deadline || "9999") || cmpScore(a, b),
+    company: (a, b) => a.company.localeCompare(b.company),
+  };
+  return list.sort(by[state.sort]);
+}
+
+/* ---------- render ---------- */
+const pill = (s) => {
+  const m = STATUS[s] || STATUS.unknown;
+  return `<span class="pill" style="color:var(${m.color})">${esc(m.label)}</span>`;
+};
+const ageLabel = (a) => {
+  const d = age(a); if (d == null) return "-";
+  const w = d >= 14 ? Math.round(d / 7) + "w" : d + "d";
+  return (a.dateApprox ? "~" : "") + w;
+};
+
+function renderSummary() {
+  const apps = state.apps;
+  const count = (fn) => apps.filter(fn).length;
+  const stats = [
+    [apps.length, "Tracked"],
+    [count((a) => ["applied", "followup_sent"].includes(a.status)), "Awaiting reply"],
+    [count((a) => ["screening", "interview"].includes(a.status)), "In conversation"],
+    [count((a) => a.status === "offer"), "Offers"],
+    [count(followUpDue), "Follow-ups due"],
+    [count(needsConfirm), "Need confirming"],
+  ];
+  $("stats").innerHTML = stats.map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+  const counts = {};
+  apps.forEach((a) => { counts[a.status] = (counts[a.status] || 0) + 1; });
+  const keys = Object.keys(STATUS).filter((k) => counts[k]);
+  $("pipeline").innerHTML = keys.map((k) =>
+    `<button type="button" data-status="${k}" aria-pressed="${state.status === k}" title="${esc(STATUS[k].label)}: ${counts[k]}" aria-label="${esc(STATUS[k].label)}: ${counts[k]}" style="flex:${counts[k]};background:var(${STATUS[k].color})"></button>`).join("");
+  $("legend").innerHTML = keys.map((k) =>
+    `<button type="button" data-status="${k}" aria-pressed="${state.status === k}"><span class="dot" style="background:var(${STATUS[k].color})"></span>${esc(STATUS[k].label)} ${counts[k]}</button>`).join("");
+}
+
+function attentionCard(title, items, renderItem, quickKey, emptyMsg) {
+  const shown = items.slice(0, 5);
+  const more = items.length > shown.length
+    ? `<div class="more"><button class="btn ghost" type="button" data-quick="${quickKey}">Show all ${items.length}</button></div>` : "";
+  const body = shown.length
+    ? `<ul>${shown.map(renderItem).join("")}</ul>${more}` : `<div class="empty">${emptyMsg}</div>`;
+  return `<div class="card"><h2><span>${title}</span><span class="mono">${items.length}</span></h2>${body}</div>`;
+}
+function renderAttention() {
+  const item = (a, why, cls = "") =>
+    `<li><button type="button" data-open="${esc(a.id)}"><span class="co">${esc(a.company)}<span class="muted"> · ${esc(a.role)}</span></span><span class="why ${cls}">${esc(why)}</span></button></li>`;
+  const confirm = state.apps.filter(needsConfirm).sort(cmpScore);
+  const due = state.apps.filter(followUpDue).sort(cmpScore);
+  const deadlines = state.apps.filter(upcomingDeadline).sort((a, b) => a.deadline.localeCompare(b.deadline));
+  $("attention").innerHTML =
+    attentionCard("Confirm you applied", confirm, (a) => item(a, STATUS[a.status].label, "flag-warn"), "confirm", "Every submission is confirmed.") +
+    attentionCard("Follow-ups due", due, (a) => {
+      const d = age(a); const stale = d >= STALE_AFTER_DAYS;
+      return item(a, `${ageLabel(a)}${stale ? " · past 6 wks" : ""}`, stale ? "flag-crit" : "flag-warn");
+    }, "followup", "Nothing due right now.") +
+    attentionCard("Deadlines ahead", deadlines, (a) => {
+      const d = daysUntil(a.deadline);
+      return item(a, `${fmtDate(a.deadline)} · ${d}d`, d <= 14 ? "flag-crit" : "");
+    }, "deadline", "No open deadlines.");
+}
+
+function renderChips() {
+  const chips = [["", "All"], ["followup", "Follow-up due"], ["confirm", "Need confirming"], ["deadline", "Has deadline"]];
+  $("chips").innerHTML = chips.map(([k, l]) => `<button class="chip" type="button" data-quick="${k}" aria-pressed="${state.quick === k}">${l}</button>`).join("");
+}
+
+function renderRows() {
+  const list = visible();
+  $("count").textContent = `${list.length} of ${state.apps.length}`;
+  $("rows").innerHTML = list.length ? list.map((a) => {
+    const m = match(a);
+    return `<tr data-open="${esc(a.id)}" tabindex="0">
+      <td class="cell-co"><b>${esc(a.company)}</b><span>${esc(a.role)}${a.location ? " · " + esc(a.location) : ""}</span></td>
+      <td class="family">${esc(a.family)}</td>
+      <td class="num mono">${a.fit ?? "-"}</td><td class="num mono">${a.strength ?? "-"}</td>
+      <td class="num mono"><b>${m == null ? "-" : m.toFixed(2)}</b></td>
+      <td>${pill(a.status)}</td>
+      <td class="num mono">${ageLabel(a)}</td>
+      <td><span class="mat" title="${esc([a.resumeFile, a.coverFile].filter(Boolean).join("\n") || "No files on record")}"><i class="${a.resumeFile ? "on" : ""}">R</i><i class="${a.coverFile ? "on" : ""}">C</i></span></td>
+      <td class="next">${esc(a.nextAction)}</td></tr>`;
+  }).join("") : `<tr><td colspan="9" class="empty" style="padding:24px">No applications match these filters.</td></tr>`;
+}
+
+function renderDrawer() {
+  const a = state.apps.find((x) => x.id === state.open);
+  const d = $("drawer");
+  if (!a) { d.hidden = true; $("scrim").hidden = true; return; }
+  // Keep focus and cursor if the user is typing when a re-render lands.
+  if (!d.hidden && d.dataset.id === a.id) { syncDrawer(a); return; }
+  d.dataset.id = a.id; d.hidden = false; $("scrim").hidden = false;
+  const dates = [a.deadline && `Deadline ${fmtDate(a.deadline)}`,
+    a.windowStart && `Runs ${fmtDate(a.windowStart)}${a.windowEnd ? " to " + fmtDate(a.windowEnd) : ""}`].filter(Boolean);
+  d.innerHTML = `
+    <div class="d-head"><h2>${esc(a.company)}</h2><button class="btn ghost" type="button" id="closeDrawer" aria-label="Close">Close</button></div>
+    <div class="d-sub">${esc(a.role)}${a.location ? " · " + esc(a.location) : ""}</div>
+    ${a.summary ? `<p class="d-summary">${esc(a.summary)}</p>` : ""}
+    ${a.notes ? `<p class="note-flag">${esc(a.notes)}</p>` : ""}
+    <div class="grid2">
+      <label class="f">Status<select id="f-status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join("")}</select></label>
+      <label class="f">Family<select id="f-family">${FAMILIES.map((f) => `<option>${esc(f)}</option>`).join("")}</select></label>
+      <label class="f">Date applied<input id="f-dateApplied" type="date"></label>
+      <label class="f">Last contact<input id="f-lastContact" type="date"></label>
+      <label class="f">Fit (0-10)<input id="f-fit" type="number" min="0" max="10" step="0.1"></label>
+      <label class="f">Application strength (0-10)<input id="f-strength" type="number" min="0" max="10" step="0.1"></label>
+      <label class="f">Deadline<input id="f-deadline" type="date"></label>
+      <label class="check" style="align-self:end"><input id="f-dateApprox" type="checkbox"> Date is an estimate</label>
+    </div>
+    <div class="facts">
+      ${dates.map((x) => `<div>${esc(x)}</div>`).join("")}
+      ${a.expectedResponse ? `<div><span class="k">Expected response:</span> ${esc(a.expectedResponse)}</div>` : ""}
+      ${a.timing ? `<div><span class="k">Timing:</span> ${esc(a.timing)}</div>` : ""}
+      <div><span class="k">Resume:</span> ${esc(a.resumeFile || "none on file")}</div>
+      <div><span class="k">Cover letter:</span> ${esc(a.coverFile || "none on file")}</div>
+    </div>
+    <label class="f">Next action<input id="f-nextAction"></label>
+    <label class="f" style="margin-top:12px">Notes<textarea id="f-notesEdit"></textarea></label>
+    <label class="f draft" style="margin-top:12px">Follow-up draft (edit before sending)<textarea id="f-followUpDraft"></textarea></label>
+    <div class="row-actions">
+      <button class="btn" type="button" id="copyDraft">Copy draft</button>
+      <button class="btn primary" type="button" id="markSent">Mark follow-up sent today</button>
+    </div>
+    <div class="danger"><button class="btn" type="button" id="del">Delete application</button></div>`;
+  syncDrawer(a, true);
+  $("closeDrawer").focus();
+}
+function syncDrawer(a, force = false) {
+  const set = (id, v) => { const el = $(id); if (el && (force || document.activeElement !== el)) el.value = v ?? ""; };
+  set("f-status", a.status); set("f-family", a.family); set("f-dateApplied", a.dateApplied);
+  set("f-lastContact", a.lastContact); set("f-fit", a.fit); set("f-strength", a.strength);
+  set("f-deadline", a.deadline); set("f-nextAction", a.nextAction); set("f-notesEdit", a.notes);
+  set("f-followUpDraft", a.followUpDraft);
+  const cb = $("f-dateApprox"); if (cb) cb.checked = !!a.dateApprox;
+}
+
+function render() {
+  $("cycle").textContent = state.cycle;
+  $("todayLabel").textContent = "Today " + fmtDate(todayISO());
+  const b = $("banner");
+  b.hidden = !state.offline;
+  if (state.offline) b.innerHTML = "Can't reach the tracker server. Start it with <code>python server.py</code> and reload this page.";
+  renderSummary(); renderAttention(); renderChips(); renderRows(); renderDrawer();
+}
+
+/* ---------- events ---------- */
+function setStatusFilter(k) { state.status = state.status === k ? "" : k; render(); }
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-status],[data-quick],[data-open]");
+  if (!t) return;
+  if (t.dataset.status) return setStatusFilter(t.dataset.status);
+  if (t.dataset.quick !== undefined) { state.quick = t.dataset.quick; return render(); }
+  if (t.dataset.open) { state.open = t.dataset.open; render(); }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && state.open) { state.open = null; render(); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches("tbody tr")) { e.preventDefault(); state.open = e.target.dataset.open; render(); }
+});
+$("scrim").addEventListener("click", () => { state.open = null; render(); });
+$("q").addEventListener("input", (e) => { state.q = e.target.value; renderRows(); });
+$("sort").addEventListener("change", (e) => { state.sort = e.target.value; renderRows(); });
+$("family").innerHTML = `<option value="">All families</option>` + FAMILIES.map((f) => `<option>${esc(f)}</option>`).join("");
+$("family").addEventListener("change", (e) => { state.family = e.target.value; renderRows(); });
+$("a-family").innerHTML = FAMILIES.map((f) => `<option>${esc(f)}</option>`).join("");
+
+// Drawer field edits: selects/dates/numbers save on change; text saves after a pause.
+const debounced = {};
+function queue(id, field, read) {
+  clearTimeout(debounced[field]);
+  debounced[field] = setTimeout(() => patch(id, { [field]: read() }, { silent: true }), 600);
+}
+const numOrNull = (v) => (v === "" ? null : Number(v));
+const drawer = $("drawer");
+drawer.addEventListener("change", (e) => {
+  const id = state.open, el = e.target;
+  const map = {
+    "f-status": ["status", () => el.value], "f-family": ["family", () => el.value],
+    "f-dateApplied": ["dateApplied", () => el.value || null], "f-lastContact": ["lastContact", () => el.value || null],
+    "f-deadline": ["deadline", () => el.value || null], "f-fit": ["fit", () => numOrNull(el.value)],
+    "f-strength": ["strength", () => numOrNull(el.value)], "f-dateApprox": ["dateApprox", () => el.checked],
+  };
+  const m = map[el.id]; if (m) patch(id, { [m[0]]: m[1]() });
+});
+drawer.addEventListener("input", (e) => {
+  const id = state.open, el = e.target;
+  if (el.id === "f-nextAction") queue(id, "nextAction", () => el.value);
+  if (el.id === "f-notesEdit") queue(id, "notes", () => el.value);
+  if (el.id === "f-followUpDraft") queue(id, "followUpDraft", () => el.value);
+});
+drawer.addEventListener("click", async (e) => {
+  const id = state.open; const a = state.apps.find((x) => x.id === id);
+  if (e.target.id === "closeDrawer") { state.open = null; render(); }
+  if (e.target.id === "markSent") {
+    const t = todayISO();
+    await patch(id, { status: "followup_sent", followUpSentOn: t, lastContact: t });
+  }
+  if (e.target.id === "copyDraft") {
+    const ta = $("f-followUpDraft");
+    try { await navigator.clipboard.writeText(ta.value); toast("Draft copied"); }
+    catch (_) { ta.select(); toast("Press Ctrl+C to copy the selected draft"); }
+  }
+  if (e.target.id === "del" && confirm(`Delete ${a.company}? This removes it from data/applications.json.`)) {
+    try { await api("DELETE", "/api/applications/" + encodeURIComponent(id)); state.open = null; await load(); toast("Deleted"); }
+    catch (err) { toast("Not deleted: " + err.message); }
+  }
+});
+
+// Add dialog
+$("addBtn").addEventListener("click", () => { $("addForm").reset(); $("addDlg").showModal(); $("a-company").focus(); });
+$("addCancel").addEventListener("click", () => $("addDlg").close());
+$("addForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const body = { company: $("a-company").value.trim(), role: $("a-role").value.trim(), family: $("a-family").value,
+    location: $("a-location").value.trim(), status: "applied", dateApplied: $("a-date").value || todayISO() };
+  try {
+    const app = await api("POST", "/api/applications", body);
+    $("addDlg").close(); await load(); state.open = app.id; render(); toast("Added");
+  } catch (err) { toast("Not added: " + err.message); }
+});
+
+// Theme toggle (remembered per browser; the page also follows the OS setting)
+$("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme
+    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("jobstracker-theme", next); } catch (_) {}
+});
+try { const t = localStorage.getItem("jobstracker-theme"); if (t) document.documentElement.dataset.theme = t; } catch (_) {}
+
+load();
+// Pick up edits made outside this tab (another window, or a hand edit to the JSON).
+setInterval(() => { if (!document.hidden && !state.open && !state.offline) load(); }, 60000);
+</script>
+</body>
+</html>
