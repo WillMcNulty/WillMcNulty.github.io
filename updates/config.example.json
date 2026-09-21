@@ -1,0 +1,6 @@
+{
+  "start": "2026-09-01",
+  "projects": [
+    { "repo": "owner/private-repo-name", "title": "Public title shown on the page" }
+  ]
+}
