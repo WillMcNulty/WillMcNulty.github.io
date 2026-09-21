@@ -52,10 +52,11 @@ a:hover { color: var(--orange); }
 .hero p { max-width: 60ch; margin: 0 0 14px; color: var(--band-muted); font-size: 18px; }
 .hero .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: center; }
-.portrait { width: 280px; height: 280px; border-radius: 50%; object-fit: cover; border: 6px solid var(--orange); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35); background: var(--band); }
+.hero-grid { align-items: start; }
+.portrait { width: 200px; height: 200px; border-radius: 28px; object-fit: cover; object-position: center 20%; border: 4px solid var(--orange); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); background: var(--band); justify-self: end; margin-top: 12px; }
 @media (max-width: 760px) {
-  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .portrait { width: 190px; height: 190px; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .portrait { width: 150px; height: 150px; border-radius: 22px; justify-self: start; margin-top: 0; }
 }
 .btn { display: inline-block; padding: 10px 18px; border: 2px solid var(--band-ink); border-radius: 6px; font-weight: 700; font-size: 14px; text-decoration: none; color: var(--band-ink); }
 .btn:hover { background: var(--band-ink); color: var(--navy); }
