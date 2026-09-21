@@ -1,2 +1,6 @@
 .DS_Store
 Thumbs.db
+__pycache__/
+# private repo names and unapproved drafts stay on this machine
+updates/config.json
+updates/.draft/
