@@ -99,6 +99,29 @@
       </article>
 
       <article class="project">
+        <div class="meta">September 2026</div>
+        <h3>UVA Capital Plan Tracker</h3>
+        <p>An interactive look at six years of the University of Virginia's public capital plans: where the money comes from, how 94 projects' budgets changed from plan to plan, and what moves a project's net present value.</p>
+        <div class="tags"><span>Python</span><span>JavaScript</span><span>Data pipeline</span><span>Financial modeling</span><span>GitHub Actions</span></div>
+        <div><a class="btn primary" href="https://willmcnulty.github.io/UVA-Capital-Plan-Tracker/">Open the live site</a> &nbsp;<a href="https://github.com/WillMcNulty/UVA-Capital-Plan-Tracker">View&nbsp;the&nbsp;code</a></div>
+        <details>
+          <summary>Read the brief</summary>
+          <div class="body">
+            <div><h4>The problem</h4><p>UVA publishes its capital plan every year, but each year's tables use a different layout and projects change names between years, so following one project's budget over time is hard.</p></div>
+            <div><h4>What I built</h4>
+              <ul>
+                <li>A parser that turns six years of plan PDFs into one table of 286 project rows, each reconciling to the dollar.</li>
+                <li>Linking that follows each project through renames: exact and fuzzy name matching plus hand-checked overrides.</li>
+                <li>The cash-flow model from my real estate course (NPV, IRR), with sliders for overruns, delays and growth rates.</li>
+              </ul>
+            </div>
+            <div><h4>What I found</h4><p>State funding fell from 26% of the plan to about 10% while debt rose to a 58% peak. Of 64 projects with more than one budget, 23 grew, by a median of 17%.</p></div>
+            <div><h4>How I tested it</h4><p>The model reproduces my course's worked example to the dollar, the browser version matches the Python version on 26 cases, and every push retests the site before it deploys.</p></div>
+          </div>
+        </details>
+      </article>
+
+      <article class="project">
         <div class="meta">September 2026 to present</div>
         <h3>Job-Application Tracker</h3>
         <p>A local dashboard that tracks every application through defined statuses with deadlines, a follow-up queue and drafted follow-up emails. The demo runs entirely in your browser on made-up sample data.</p>
