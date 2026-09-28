@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>jobstracker demo</title>
+<script src="../../theme.js"></script>
 <style>
 :root {
   --ground: #f5f6f3;
@@ -199,7 +200,7 @@ dialog h2 { margin: 0; font: 600 20px var(--serif); }
     <h1>jobstracker<small id="cycle"></small></h1>
     <div class="head-actions">
       <span class="muted" id="todayLabel"></span>
-      <button class="btn ghost" id="themeBtn" type="button" title="Switch light / dark">Theme</button>
+      <button class="btn ghost" id="themeBtn" type="button" data-theme-toggle>◐ Auto</button>
       <button class="btn primary" id="addBtn" type="button">Add application</button>
     </div>
   </header>
@@ -574,15 +575,7 @@ $("addForm").addEventListener("submit", async (e) => {
   } catch (err) { toast("Not added: " + err.message); }
 });
 
-// Theme toggle (remembered per browser; the page also follows the OS setting)
-$("themeBtn").addEventListener("click", () => {
-  const cur = document.documentElement.dataset.theme
-    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem("jobstracker-theme", next); } catch (_) {}
-});
-try { const t = localStorage.getItem("jobstracker-theme"); if (t) document.documentElement.dataset.theme = t; } catch (_) {}
+// Theme: ../../theme.js (Auto / Light / Dark, shared with the rest of willmcnulty.github.io) handles the button.
 
 load();
 // Pick up edits made outside this tab (another window, or a hand edit to the JSON).

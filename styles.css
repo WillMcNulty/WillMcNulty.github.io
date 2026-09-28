@@ -20,12 +20,20 @@
   --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --mono: "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
 }
+/* Dark: follows the device (Auto) unless the theme button picked Light; or always when it picked Dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --ground: #0d1120; --panel: #161c30; --ink: #eef1fa; --muted: #a6b1cf; --line: #2b3454;
     --navy: #aebdf0; --orange: #ff8f2e; --orange-tint: #2a1e12; --blue-tint: #1e2746;
     --band: #1a2240; --band-muted: #b9c4e4; --link: #b6c4f5; --bar: #aebdf0; --bar-base: #34406a;
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0d1120; --panel: #161c30; --ink: #eef1fa; --muted: #a6b1cf; --line: #2b3454;
+  --navy: #aebdf0; --orange: #ff8f2e; --orange-tint: #2a1e12; --blue-tint: #1e2746;
+  --band: #1a2240; --band-muted: #b9c4e4; --link: #b6c4f5; --bar: #aebdf0; --bar-base: #34406a;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -44,6 +52,8 @@ a:hover { color: var(--orange); }
 .topbar nav { display: flex; gap: 22px; flex-wrap: wrap; font-size: 14px; font-weight: 600; }
 .topbar nav a { color: var(--band-muted); text-decoration: none; }
 .topbar nav a:hover { color: var(--orange); }
+.theme-btn { font: 600 13px var(--sans); color: var(--band-muted); background: none; border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 999px; padding: 2px 11px; cursor: pointer; }
+.theme-btn:hover { color: var(--orange); border-color: var(--orange); }
 
 .hero { border-bottom: 8px solid var(--orange); }
 .hero .wrap { padding-block: 72px 60px; }
