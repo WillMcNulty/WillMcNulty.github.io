@@ -59,6 +59,29 @@
       <h2 id="projects-h">Projects</h2>
 
       <article class="project">
+        <div class="meta">September 2026 · live, refreshed daily</div>
+        <h3>Virginia Data Center Tracker</h3>
+        <p>A statewide map of every data center Virginia's Department of Environmental Quality has on record, planned, under construction or operating. Search around a ZIP code, a school, or a pin on the map. Built from official records only, and every dot links back to its state record.</p>
+        <div class="tags"><span>Python</span><span>JavaScript</span><span>MapLibre</span><span>Geospatial data</span><span>GitHub Actions</span></div>
+        <div><a class="btn primary" href="https://willmcnulty.github.io/Virginia-Data-Center-Tracker/">Open the live map</a> &nbsp;<a href="https://github.com/WillMcNulty/Virginia-Data-Center-Tracker">View&nbsp;the&nbsp;code</a></div>
+        <details>
+          <summary>Read the brief</summary>
+          <div class="body">
+            <div><h4>The problem</h4><p>My mom noticed three data centers going up within a mile of my little brother's middle school in about six months, and our family had no idea any of them were coming. The existing maps rely largely on community reports, so they aren't pulling from the best data.</p></div>
+            <div><h4>What I built</h4>
+              <ul>
+                <li>A pipeline that pulls DEQ's daily air-permit records (every data center needs one for its backup generators), names each site's county or city, and adds permit dates.</li>
+                <li>Search by ZIP code, school (all 2,159 Virginia public schools, matching the names people actually use) or a pin, within 1 to 30 miles. It all runs in the browser, so nothing a visitor types leaves their device.</li>
+                <li>A daily automated refresh that refuses to publish if a source comes back broken.</li>
+              </ul>
+            </div>
+            <div><h4>What it found</h4><p>Four data centers are within a mile of my brother's school, two of them still planned. Across Virginia, DEQ issued 44 data center air permits in 2026 through September, up from 34 in all of 2025.</p></div>
+            <div><h4>How I tested it</h4><p>Tests check that the browser's distance math matches the Python pipeline to a millionth of a mile, that "Rachel Carson" finds the school the federal data calls "Carson Middle", and that the build stops on bad data. Where two official sources disagree on a site's locality, the map shows both.</p></div>
+          </div>
+        </details>
+      </article>
+
+      <article class="project">
         <div class="meta">2026 to present · in progress</div>
         <h3>UVA Knowledge Network</h3>
         <p>A private, locally hosted pipeline that turns coursework (PDFs, slides, spreadsheets, class recordings) into structured, searchable notes, using local models so course material never leaves my machine.</p>
