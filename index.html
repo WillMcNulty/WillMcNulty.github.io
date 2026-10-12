@@ -61,24 +61,24 @@
       <h2 id="projects-h">Projects</h2>
 
       <article class="project">
-        <div class="meta">October 2026</div>
+        <div class="meta">October 2026 · two versions</div>
         <h3>Who Gets the Loan?</h3>
-        <p>A fairness audit of the 1990 Boston mortgage-lending data, done two ways: the econometrics of the racial approval gap, and what a machine-learning model trained without race does by race. Results are associations after controlling for the variables recorded, with their limits stated first.</p>
-        <div class="tags"><span>Python</span><span>statsmodels</span><span>scikit-learn</span><span>Econometrics</span><span>ML fairness</span><span>GitHub Actions</span></div>
-        <div><a class="btn primary" href="https://willmcnulty.github.io/Who-Gets-the-Loan/">Open the report</a> &nbsp;<a href="https://github.com/WillMcNulty/Who-Gets-the-Loan">View&nbsp;the&nbsp;code</a></div>
+        <p>A fairness audit of mortgage lending in two parts. The first reworks the 1990 Boston study: the econometrics of the racial approval gap, and what a model trained without race does by race. The second joins 22 years of Virginia mortgage applications, 13 million records from three publishers and three formats, into one dataset. Results are associations after controlling for what the data record, with their limits stated first.</p>
+        <div class="tags"><span>Python</span><span>statsmodels</span><span>scikit-learn</span><span>Econometrics</span><span>ML fairness</span><span>Data harmonization</span><span>GitHub Actions</span></div>
+        <div><a class="btn primary" href="https://willmcnulty.github.io/Who-Gets-the-Loan/virginia/">Open the Virginia report</a> &nbsp;<a href="https://willmcnulty.github.io/Who-Gets-the-Loan/">Boston,&nbsp;1990</a> &nbsp;<a href="https://github.com/WillMcNulty/Who-Gets-the-Loan">View&nbsp;the&nbsp;code</a></div>
         <details>
           <summary>Read the brief</summary>
           <div class="body">
-            <div><h4>The problem</h4><p>My econometrics course used this data for one problem set: a few regressions of loan approval on race and finances. I wanted to know how far the answer moves with what you control for, and whether a model that never sees race ends up treating applicants equally.</p></div>
+            <div><h4>The problem</h4><p>My econometrics course used the 1990 Boston data for one problem set: a few regressions of loan approval on race and finances. I wanted to know how far the answer moves with what you control for, whether a model that never sees race ends up treating applicants equally, and what today's public data for Virginia show over two decades.</p></div>
             <div><h4>What I built</h4>
               <ul>
-                <li>Linear probability, probit and logit models with marginal effects, a ladder of controls, race interactions and an Oaxaca-Blinder decomposition of the gap.</li>
-                <li>Approval models trained without race, measured for demographic parity, equalized odds and calibration by group, plus how much race the other inputs carry.</li>
-                <li>Mitigation trade-offs and a label-bias what-if, since the "approved" label is the decision being audited.</li>
+                <li>Boston, 1990: probit and logit models with marginal effects, an Oaxaca-Blinder decomposition, and race-blind models measured for demographic parity, equalized odds, calibration and proxies.</li>
+                <li>Virginia, 2004-2025: readers for three eras of public mortgage data (National Archives fixed-width files, CFPB historic files, the CFPB's current API) feeding one schema, with one rule for groups, samples and geography, and every year's tracts mapped onto 2020 tracts.</li>
+                <li>Denial-gap models with lender and county fixed effects, by year and by era, a tract map, and denial reasons by group.</li>
               </ul>
             </div>
-            <div><h4>What it found</h4><p>White applicants were approved 90.8% of the time and Black or Hispanic applicants 70.8%. About 63% of that gap isn't accounted for by the recorded finances and credit histories, which fits discrimination but also things the files don't record. A model trained without race kept a 21-point gap.</p></div>
-            <div><h4>How I tested it</h4><p>The course's models reproduce the instructor's Stata output to every printed digit (81 of 81 numbers), the fairness metrics are tested against hand-worked cases, and every push rebuilds the results and fails if they drift.</p></div>
+            <div><h4>What it found</h4><p>In Virginia, Black applicants were denied more often than white applicants in all 22 years. Comparing applicants at the same lender with the underwriting fields reported since 2018, a 3.5-point home-purchase gap remains in 2018-2025. That fits discrimination but also things the data don't record, such as credit scores.</p></div>
+            <div><h4>How I tested it</h4><p>The course's models reproduce the instructor's Stata output to every printed digit. Every Virginia year from 2007 on matches the publisher's official record count exactly, the fixed-effects estimator is checked against a standard library, and every push reruns the tests before the site deploys.</p></div>
           </div>
         </details>
       </article>
