@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found · William McNulty</title>
+<script>
+  // The Virginia Data Center Tracker moved to https://datacentersnearyou.org (October 2026). Its pages have forwarding
+  // pages in Virginia-Data-Center-Tracker/; any other old address under that folder (a data file, a page that no
+  // longer exists) lands here and is sent to the same path on the new site, keeping ?query and #search.
+  (function () {
+    var base = "/Virginia-Data-Center-Tracker/", p = location.pathname;
+    if (p === base.slice(0, -1) || p.indexOf(base) === 0) {
+      location.replace("https://datacentersnearyou.org/" + p.slice(base.length) + location.search + location.hash);
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/styles.css?v=7">
+<script src="/theme.js"></script>
+</head>
+<body>
+  <main style="max-width: 640px; margin: 15vh auto; padding: 0 16px;">
+    <h1>Page not found</h1>
+    <p>There's nothing at this address. <a href="/">Go to the home page</a>.</p>
+    <p>Looking for the Virginia data center map? It's now at
+      <a href="https://datacentersnearyou.org/">datacentersnearyou.org</a>.</p>
+  </main>
+</body>
+</html>
